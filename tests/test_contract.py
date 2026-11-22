@@ -56,3 +56,30 @@ def test_persistence_baseline_is_reported():
     """The baseline that matters for a lag-driven model is 'yesterday again'.
     It must be in the comparison, whatever its score."""
     assert "baseline_persistence" in MODELS
+
+
+def test_no_unclassified_features(feats):
+    """Every numeric model feature must be explicitly reviewed."""
+    approved = {
+        "temp",
+        "atemp",
+        "hum",
+        "windspeed",
+        "dayofweek",
+        "is_weekend",
+        "is_holiday",
+        "is_workday",
+        "month_sin",
+        "month_cos",
+        "weather_severity",
+        "cnt_lag_1",
+        "cnt_lag_7",
+        "cnt_roll_7",
+        "cnt_roll_14",
+    }
+
+    unclassified = set(feature_columns(feats)) - approved
+
+    assert not unclassified, (
+        f"Unclassified features: {sorted(unclassified)}"
+    )
