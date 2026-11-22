@@ -52,9 +52,9 @@ def test_rolling_mean_excludes_today(feats):
     by_date = feats.set_index("dteday")[TARGET]
     date = feats.dteday.iloc[200]
     window = [date - pd.Timedelta(days=k) for k in range(1, 8)]
-    if all(d in by_date.index for d in window):
-        expected = sum(by_date[d] for d in window) / 7
-        assert feats.set_index("dteday").cnt_roll_7[date] == pytest.approx(expected)
+    assert all(d in by_date.index for d in window)
+    expected = sum(by_date[d] for d in window) / 7
+    assert feats.set_index("dteday").cnt_roll_7[date] == pytest.approx(expected)
 
 
 def test_no_missing_values(feats):
@@ -64,3 +64,24 @@ def test_no_missing_values(feats):
 def test_dates_are_sorted_and_unique(feats):
     assert feats.dteday.is_monotonic_increasing
     assert feats.dteday.is_unique
+
+
+@pytest.fixture
+def cnt_roll_14(feats):
+    """Return cnt_roll_14 column for direct testing."""
+    return feats["cnt_roll_14"]
+
+
+def test_rolling_14_mean_excludes_today(cnt_roll_14, feats):
+    """cnt_roll_14 must be the mean of the 14 calendar days *before* today."""
+    by_date = feats.set_index("dteday")["cnt"]
+
+    # Pick a date far enough in for us to have 14 prior days (after warmup)
+    idx = 500  # safely past LAG_WARMUP
+    date = feats.dteday.iloc[idx]
+
+    window = [date - pd.Timedelta(days=k) for k in range(1, 15)]
+    assert all(d in by_date.index for d in window)
+    expected = sum(by_date[d] for d in window) / 14
+    actual = cnt_roll_14.iloc[idx]
+    assert actual == pytest.approx(expected), f"bad roll at {date.date()}: got {actual}, expected {expected}" 
