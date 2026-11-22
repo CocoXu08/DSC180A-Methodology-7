@@ -39,3 +39,9 @@ rides) from calendar, weather, and lagged-demand features.
   cannot extrapolate to 2012. That is the headline result, not an error.
 - 2012-10-29 (Hurricane Sandy, 22 rides) is in the test set. Expect it in
   any residual plot.
+
+## Feature review
+- Use /review-features <feature> to check availability,
+  leakage, feature correctness, and test coverage.
+- Keep 7-day lag and rolling windows independent of
+  LAG_WARMUP when adding longer-history features.
