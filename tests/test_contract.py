@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 from sklearn.metrics import r2_score
 
-from src.config import LAG_WARMUP, TARGET
+from src.config import FORBIDDEN, LAG_WARMUP, RAW_FEATURE_INPUT_COLS, TARGET
 from src.features import build_features, feature_columns, reindex_to_calendar
 from src.ingest import load_raw
 from src.train import MODELS, temporal_split
@@ -83,3 +83,25 @@ def test_no_unclassified_features(feats):
     assert not unclassified, (
         f"Unclassified features: {sorted(unclassified)}"
     )
+
+
+def _unclassified_raw_columns(columns):
+    reviewed = FORBIDDEN | RAW_FEATURE_INPUT_COLS | {"dteday"}
+    return set(columns) - reviewed
+
+
+def test_raw_columns_are_classified(raw):
+    """Every original CSV column must be explicitly classified."""
+    assert not (FORBIDDEN & RAW_FEATURE_INPUT_COLS)
+    unclassified = _unclassified_raw_columns(raw.columns)
+    assert not unclassified, (
+        f"Unclassified raw columns: {sorted(unclassified)}"
+    )
+
+
+def test_new_raw_column_is_detected(raw):
+    """Simulate a new raw column without modifying the CSV file."""
+    changed = raw.assign(unexpected_new_column=0)
+    assert _unclassified_raw_columns(changed.columns) == {
+        "unexpected_new_column"
+    }

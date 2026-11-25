@@ -42,8 +42,17 @@ TIME_INDEX_COLS = {"instant", "yr", "days_since_2011"}
 #    build our own lags from the target and test those instead.
 UNVERIFIED_COLS = {"cnt_2d_bfr"}
 
+# Raw source columns explicitly approved for feature engineering.
+RAW_FEATURE_INPUT_COLS = {
+    "temp", "atemp", "hum", "windspeed",
+    "holiday", "workday", "weather",
+}
+
+# Redundant raw calendar labels; calendar features are built from dteday.
+REDUNDANT_CALENDAR_COLS = {"season", "mnth", "weekday"}
+
 # What feature_columns() and the tests actually enforce.
-FORBIDDEN = LEAKAGE_COLS | TIME_INDEX_COLS | UNVERIFIED_COLS
+FORBIDDEN = LEAKAGE_COLS | TIME_INDEX_COLS | UNVERIFIED_COLS | REDUNDANT_CALENDAR_COLS
 
 # Temporal split: train on 2011, validate on H1 2012, test on H2 2012.
 TRAIN_END = "2011-12-31"
