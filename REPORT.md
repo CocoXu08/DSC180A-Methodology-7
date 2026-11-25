@@ -1,4 +1,4 @@
-# DSC 180A Methodology Assignment 6
+# DSC 180A Methodology Assignment 7
 **Agentic Programming: Bike Sharing Demand Forecasting**
 
 **Author:** Ziling Xu
